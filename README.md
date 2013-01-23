@@ -5,7 +5,8 @@ a folder on your computer in a pleasing format.  It is basically
 a digital photo frame on steroids.
 
 So far as I'm aware, nothing else is available for Windows that
-does this type of layout and supports 
+does this type of layout and supports multiple monitors.  The
+built-in "Photos" screensaver on Windows 7 is decidedly lacking!
 
 ## Features
 
