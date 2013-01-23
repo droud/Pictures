@@ -26,6 +26,8 @@ built-in "Photos" screensaver on Windows 7 is decidedly lacking!
 
 ## Future
 
+* Installer
+* Automatic grids at standard ratios
 * Additional file format support
 * Grid and span size choices
 * Animated and 3D transitions
