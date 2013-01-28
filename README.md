@@ -12,6 +12,7 @@ built-in "Photos" screensaver on Windows 7 is decidedly lacking!
 
 * Easy installation and uninstallation
 * Works on standard and widescreen monitors
+* Works on landscape and portrait monitors
 * Multiple layout grid sizes and image spanning
 * Handles vertical and horizontal images correctly
 * Centers and scales images to avoid black bars
@@ -40,8 +41,7 @@ built-in "Photos" screensaver on Windows 7 is decidedly lacking!
 
 ## Future
 
-* Automatic grids at standard ratios
 * Additional file format support
-* Grid and span size choices
+* Minimum image size choices
 * Animated and 3D transitions
 * Border size choices

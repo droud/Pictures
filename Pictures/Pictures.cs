@@ -71,6 +71,9 @@ namespace Pictures
         // stores paths and dimensions of pictures
         private List<Picture> _pictures = new List<Picture>();
 
+        // used to randomize stuff
+        public Random _random = new Random(Environment.TickCount);
+
         #endregion
 
         #region Constructors
@@ -244,6 +247,7 @@ namespace Pictures
 
         #region Form painting and layout methods
 
+        // stops form from painting its background each refresh
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             //base.OnPaintBackground(e);
@@ -261,14 +265,11 @@ namespace Pictures
 
             try
             {
-                // lots of random
-                Random random = new Random(Environment.TickCount);
-
                 // copy picture list
                 var pictures = new List<Picture>(_pictures);
 
-                // choose a random grid size
-                var size = _sizes[random.Next() % _sizes.Length];
+                // get a random grid size
+                var size = CreateSegmentSize();
 
                 // initialize segments (grid) according to size
                 var segments = CreateSegments(size);
@@ -280,11 +281,11 @@ namespace Pictures
                     if (available.Count == 0) break; // no more segments
 
                     // randomly choose a segment from unused segments
-                    var segment = available[random.Next() % available.Count];
+                    var segment = available[_random.Next() % available.Count];
 
                     // randomly choose a picture
                     if (pictures.Count == 0) break; // no more pictures
-                    var picture = pictures[random.Next() % pictures.Count];
+                    var picture = pictures[_random.Next() % pictures.Count];
 
                     // choose which set of spans to use based on height vs width
                     var spans = picture.Size.Height > picture.Size.Width ? _tallspans : _widespans;
@@ -311,7 +312,7 @@ namespace Pictures
 
                         // choose one randomly and set minimum span
                         span = new Size(1, 1);
-                        picture = wides[random.Next() % wides.Count];
+                        picture = wides[_random.Next() % wides.Count];
                     }
 
                     // mark used segments
@@ -399,9 +400,29 @@ namespace Pictures
             tmrDelay.Enabled = true;
         }
 
+        private Size CreateSegmentSize()
+        {
+            // get screen/form bounds
+            var bounds = this.Bounds;
+
+            // calculate maximum columns and randomly choose one
+            // TODO: make minimum image width configurable
+            var maxcols = (int)(bounds.Width / 160.0);
+            var cols = (_random.Next() % maxcols) + 1;
+
+            // calculate segment width by columns
+            var width = bounds.Width / cols;
+
+            // calculate rows by best match for segment width
+            var rows = (int)Math.Floor(bounds.Height / (width / (4.0 / 3.0)));
+
+            return new Size(cols, rows);
+        }
+
         // creates a set of segments based on form bounds and grid size
         private List<Segment> CreateSegments(Size Size)
         {
+            // get screen/form bounds
             var bounds = this.Bounds;
 
             // calculate grid cell size
@@ -476,11 +497,13 @@ namespace Pictures
         // prepares form and displays initial pictures
         private void Pictures_Load(object sender, EventArgs e)
         {
+#if !DEBUG
             // hide cursor
-            //Cursor.Hide();
+            Cursor.Hide();
 
             // make sure form is on top
-            //this.TopMost = true;
+            this.TopMost = true;
+#endif
 
             // first display
             Refresh();
