@@ -41,6 +41,7 @@ built-in "Photos" screensaver on Windows 7 is decidedly lacking!
 
 ## Future
 
+* Folder and date based event separation
 * Additional file format support
 * Minimum image size choices
 * Animated and 3D transitions
