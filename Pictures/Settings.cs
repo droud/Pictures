@@ -47,6 +47,9 @@ namespace Pictures
                 // retrieve values
                 txtPath.Text = Convert.ToString(key.GetValue("path"));
                 numDelay.Value = Convert.ToInt32(key.GetValue("delay"));
+
+                // set about text
+                lblVersion.Text = "Version " + this.ProductVersion + " by droud.";
             }
             catch
             {

@@ -85,8 +85,8 @@ namespace Pictures
 
             this.Bounds = Bounds;
 
-            LoadSettings();
-            LoadPictures();
+            LoadSettings(); // sets _path
+            LoadPictures(_path);
 
             Refresh();
         }
@@ -109,8 +109,8 @@ namespace Pictures
             Size = ParentRect.Size;
             Location = new Point(0, 0);
 
-            LoadSettings();
-            LoadPictures();
+            LoadSettings(); // sets _path
+            LoadPictures(_path);
 
             Refresh();
         }
@@ -137,9 +137,9 @@ namespace Pictures
         }
 
         // loads pictures from the path
-        private void LoadPictures()
+        private void LoadPictures(string Path)
         {
-            var files = Directory.GetFiles(_path);
+            var files = Directory.GetFiles(Path);
             foreach (var file in files)
             {
                 var lower = file.ToLower();
@@ -161,6 +161,10 @@ namespace Pictures
 
                 // TODO: support BMPs and PNGs and such (need quick dimension loader)
             }
+
+            // recursively traverse folders
+            foreach (var dir in Directory.GetDirectories(Path))
+                LoadPictures(dir);
         }
 
         // gets a JPEG image size quickly, pulled from StackOverflow
