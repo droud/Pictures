@@ -1,6 +1,6 @@
 ﻿namespace Pictures
 {
-    partial class Settings
+    partial class Configuration
     {
         /// <summary>
         /// Required designer variable.

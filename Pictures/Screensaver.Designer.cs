@@ -1,6 +1,6 @@
 ﻿namespace Pictures
 {
-    partial class Pictures
+    partial class Screensaver
     {
         /// <summary>
         /// Required designer variable.

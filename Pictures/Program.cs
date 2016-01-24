@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Pictures.Services;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -15,6 +17,11 @@ namespace Pictures
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            // load settings or defaults
+            var settingService = new SettingService();
+            var photoService = new PhotoService(settingService);
+            var framingService = new FramingService(photoService);
 
             // check if there were arguments
             if (args.Length > 0)
@@ -35,10 +42,10 @@ namespace Pictures
                     // get option from second argument
                     value = args[1];
                 }
-
+                
                 if (option == "/c") // settings mode
                 {
-                    Application.Run(new Settings());
+                    Application.Run(new Configuration(settingService));
                 }
                 else if (option == "/p") // preview mode
                 {
@@ -53,14 +60,31 @@ namespace Pictures
                     IntPtr handle = new IntPtr(long.Parse(value));
                     
                     // run main form in preview mode
-                    Application.Run(new Pictures(handle));
+                    Application.Run(new Screensaver(handle, framingService));
+                }
+                else if (option == "/d")
+                {
+                    // find largest screen dimensions
+                    Rectangle largest = Rectangle.Empty;
+                    foreach (Screen screen in Screen.AllScreens)
+                    {
+                        if (screen.Bounds.Width > largest.Width)
+                            largest.Width = screen.Bounds.Width;
+
+                        if (screen.Bounds.Height > largest.Height)
+                            largest.Height = screen.Bounds.Height;
+                    }
+
+                    var wallpaperService = new WallpaperService(largest, framingService);
+
+                    wallpaperService.RefreshDesktop();
                 }
                 else // screensaver mode by default
                 {
                     // show and start main form on each screen
                     foreach (Screen screen in Screen.AllScreens)
                     {
-                        Pictures pictures = new Pictures(screen.Bounds);
+                        Screensaver pictures = new Screensaver(screen.Bounds, framingService);
                         pictures.Show();
                     }
 
@@ -70,7 +94,7 @@ namespace Pictures
             }
             else // default to settings mode
             {
-                Application.Run(new Settings());
+                Application.Run(new Configuration(settingService));
             }
         }
     }

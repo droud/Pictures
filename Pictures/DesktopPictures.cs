@@ -12,8 +12,10 @@ using System.IO;
 
 namespace Pictures
 {
-    public partial class Pictures : Form
+    public partial class DesktopPictures
     {
+        private Timer tmrDelay;
+
         #region Interop and external call imports
         
         [DllImport("user32.dll")]
@@ -78,42 +80,93 @@ namespace Pictures
 
         #region Constructors
 
-        // constructor for display
-        public Pictures(Rectangle Bounds)
+        // constructor for desktop
+        public DesktopPictures()
         {
-            InitializeComponent();
+            var handle = GetDesktopHandle();
+            
+            // Get the Device Context of the WorkerW
+            IntPtr dc = W32.GetDCEx(handle, IntPtr.Zero, (W32.DeviceContextValues)0x403);
+            if (dc != IntPtr.Zero)
+            {
+                // Create a Graphics instance from the Device Context
+                using (Graphics g = Graphics.FromHdc(dc))
+                {
 
-            this.Bounds = Bounds;
+                    // Use the Graphics instance to draw a white rectangle in the upper 
+                    // left corner. In case you have more than one monitor think of the 
+                    // drawing area as a rectangle that spans across all monitors, and 
+                    // the 0,0 coordinate beeing in the upper left corner.
+                    g.FillRectangle(new SolidBrush(Color.White), 0, 0, 500, 500);
 
-            LoadSettings(); // sets _path
-            LoadPictures(_path);
-
-            Refresh();
-        }
-
-        // constructor for preview
-        public Pictures(IntPtr PreviewWndHandle)
-        {
-            InitializeComponent();
-
-            // Set the preview window as the parent of this window
-            SetParent(this.Handle, PreviewWndHandle);
-
-            // Make this a child window so it will close when the parent dialog closes
-            // GWL_STYLE = -16, WS_CHILD = 0x40000000
-            SetWindowLong(this.Handle, -16, new IntPtr(GetWindowLong(this.Handle, -16) | 0x40000000));
+                }
+                // make sure to release the device context after use.
+                W32.ReleaseDC(handle, dc);
+            }
 
             // Place our window inside the parent
-            Rectangle ParentRect;
-            GetClientRect(PreviewWndHandle, out ParentRect);
-            Size = ParentRect.Size;
-            Location = new Point(0, 0);
+            //Rectangle ParentRect;
+            //GetClientRect(PreviewWndHandle, out ParentRect);
+            //Size = ParentRect.Size;
+            //Location = new Point(0, 0);
 
-            LoadSettings(); // sets _path
-            LoadPictures(_path);
+            //LoadSettings(); // sets _path
+            //LoadPictures(_path);
 
-            Refresh();
+            //Refresh();
         }
+
+
+        private static IntPtr GetDesktopHandle()
+        {
+            // Fetch the Progman window
+            IntPtr progman = W32.FindWindow("Progman", null);
+            IntPtr defview = W32.FindWindowEx(progman, IntPtr.Zero, "SHELLDLL_DefView", IntPtr.Zero);
+            IntPtr listview = W32.FindWindowEx(defview, IntPtr.Zero, "SysListView32", IntPtr.Zero);
+            //IntPtr listview = W32.FindWindowEx(defview, IntPtr.Zero, "WorkerW", IntPtr.Zero);
+
+            return listview;
+
+            IntPtr result = IntPtr.Zero;
+
+            // Send 0x052C to Progman. This message directs Progman to spawn a 
+            // WorkerW behind the desktop icons. If it is already there, nothing 
+            // happens.
+            W32.SendMessageTimeout(progman,
+                                   0x052C,
+                                   new IntPtr(0),
+                                   IntPtr.Zero,
+                                   W32.SendMessageTimeoutFlags.SMTO_NORMAL,
+                                   1000,
+                                   out result);
+
+            IntPtr workerw = IntPtr.Zero;
+
+            // We enumerate all Windows, until we find one, that has the SHELLDLL_DefView 
+            // as a child. 
+            // If we found that window, we take its next sibling and assign it to workerw.
+            W32.EnumWindows(new W32.EnumWindowsProc((tophandle, topparamhandle) =>
+            {
+                IntPtr p = W32.FindWindowEx(tophandle,
+                                            IntPtr.Zero,
+                                            "SHELLDLL_DefView",
+                                            IntPtr.Zero);
+
+                if (p != IntPtr.Zero)
+                {
+                    // Gets the WorkerW Window after the current one.
+                    workerw = W32.FindWindowEx(IntPtr.Zero,
+                                               tophandle,
+                                               "WorkerW",
+                                               IntPtr.Zero);
+                }
+
+                return true;
+            }), IntPtr.Zero);
+
+            return workerw;
+        }
+
 
         #endregion
 
@@ -252,13 +305,13 @@ namespace Pictures
         #region Form painting and layout methods
 
         // stops form from painting its background each refresh
-        protected override void OnPaintBackground(PaintEventArgs e)
+        protected void OnPaintBackground(PaintEventArgs e)
         {
             //base.OnPaintBackground(e);
         }
 
         // paints the form, does most of the real work
-        protected override void OnPaint(PaintEventArgs e)
+        protected void OnPaint(PaintEventArgs e)
         {
             // stop update timer while we display, ensures entire delay occurs between refreshes
             tmrDelay.Enabled = false;
@@ -398,7 +451,7 @@ namespace Pictures
             brush = null;
 
             // allow form to draw itself (nothing left though!)
-            base.OnPaint(e);
+            //base.OnPaint(e);
 
             // re-enable timer so refresh happens again after delay
             tmrDelay.Enabled = true;
@@ -407,7 +460,7 @@ namespace Pictures
         private Size CreateSegmentSize()
         {
             // get screen/form bounds
-            var bounds = this.Bounds;
+            var bounds = new Rectangle(0, 0, 100, 100);// this.Bounds;
 
             // calculate maximum columns and randomly choose one
             // TODO: make minimum image width configurable
@@ -427,7 +480,7 @@ namespace Pictures
         private List<Segment> CreateSegments(Size Size)
         {
             // get screen/form bounds
-            var bounds = this.Bounds;
+            var bounds = new Rectangle(0, 0, 100, 100);// this.Bounds;
 
             // calculate grid cell size
             var width = bounds.Width / Size.Width;
@@ -510,7 +563,7 @@ namespace Pictures
 #endif
 
             // first display
-            Refresh();
+            //Refresh();
         }
 
         // handles mouse movement
@@ -544,7 +597,7 @@ namespace Pictures
         // refresh each time the timer ticks
         private void tmrDelay_Tick(object sender, EventArgs e)
         {
-            Refresh();
+            //Refresh();
         }
 
         #endregion

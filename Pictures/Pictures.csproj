@@ -28,6 +28,8 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -51,6 +53,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -62,24 +65,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Picture.cs" />
-    <Compile Include="Pictures.cs">
+    <Compile Include="Helpers\ImageHelper.cs" />
+    <Compile Include="Helpers\WallpaperHelper.cs" />
+    <Compile Include="Models\Picture.cs" />
+    <Compile Include="Screensaver.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Pictures.Designer.cs">
-      <DependentUpon>Pictures.cs</DependentUpon>
+    <Compile Include="Screensaver.Designer.cs">
+      <DependentUpon>Screensaver.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Segment.cs" />
-    <Compile Include="Settings.cs">
+    <Compile Include="Services\FramingService.cs" />
+    <Compile Include="Services\PhotoService.cs" />
+    <Compile Include="Services\SettingService.cs" />
+    <Compile Include="Configuration.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Settings.Designer.cs">
-      <DependentUpon>Settings.cs</DependentUpon>
+    <Compile Include="Configuration.Designer.cs">
+      <DependentUpon>Configuration.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Pictures.resx">
-      <DependentUpon>Pictures.cs</DependentUpon>
+    <Compile Include="Services\WallpaperService.cs" />
+    <Compile Include="SQLite\SQLite.cs" />
+    <Compile Include="SQLite\SQLiteAsync.cs" />
+    <EmbeddedResource Include="Screensaver.resx">
+      <DependentUpon>Screensaver.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -91,9 +101,11 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Settings.resx">
-      <DependentUpon>Settings.cs</DependentUpon>
+    <EmbeddedResource Include="Configuration.resx">
+      <DependentUpon>Configuration.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="App.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -105,7 +117,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="droud.png" />
+    <Content Include="Resources\droud.png" />
+    <None Include="sqlite3.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">

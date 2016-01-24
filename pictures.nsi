@@ -21,6 +21,7 @@ Section "Install"
   
   ; Put file there
   File "/oname=Pictures.scr" "Pictures\bin\Release\Pictures.exe"
+  File "/oname=sqlite3.dll" "Pictures\bin\Release\sqlite3.dll"
   
   ; Uninstall stuff
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PicturesScreensaver" "DisplayName" "Pictures Screensaver"
