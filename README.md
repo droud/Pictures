@@ -1,23 +1,20 @@
 # A Simple Picture Collage Screensaver
 
-This screensaver displays pictures (currently JPEG only) from
-a folder on your computer in a pleasing format.  It is basically
+This screensaver displays pictures (JPEG, PNG, BMP, GIF) from a 
+folder on your computer in a pleasing format.  It is basically
 a digital photo frame on steroids.
 
-So far as I'm aware, nothing else is available for Windows that
-does this type of layout and supports multiple monitors.  The
-built-in "Photos" screensaver on Windows 7 is decidedly lacking!
+This is an attempt to make  something better than the built-in
+"Photos" screensaver on Windows 7, which is decidedly lacking!
 
 ## Features
 
 * Easy installation and uninstallation
-* Works on standard and widescreen monitors
-* Works on landscape and portrait monitors
-* Multiple layout grid sizes and image spanning
-* Handles vertical and horizontal images correctly
+* Random layouts and image selection
 * Centers and scales images to avoid black bars
 * Unlimited monitors supported without additional tools
-* Low memory consumption
+* Database backed image dimension cache for fast startup
+* Wallpaper setting mode (use /d switch)
 
 ## Usage
 
@@ -37,12 +34,16 @@ built-in "Photos" screensaver on Windows 7 is decidedly lacking!
 1. Build the "pictures.nsi" file (NSIS 2.46+)
 
 ### Debug
-    Be sure to provide /c or /s options in the project settings under "Debug/Command line arguments" in Visual Studio!
+    Be sure to provide /c, /s, or /d options in the project settings under "Debug/Command line arguments" in Visual Studio!
 
 ## Future
 
-* Folder and date based event separation
-* Additional file format support
-* Minimum image size choices
+* Continuous wallpaper mode with notification icon
+* Folder and date based event separation and compositing
+* Minimum image size choices and filtering
 * Animated and 3D transitions
 * Border size choices
+* Unit tests and frameworks
+* Additional file format support (done)
+* Image dimension caching (done)
+* Wallpaper generation (done)
