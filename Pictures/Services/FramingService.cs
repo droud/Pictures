@@ -180,7 +180,7 @@ namespace Pictures.Services
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception.ToString());
+                // TODO: log something
             }
 
             // make sure we clear bitmap to free memory

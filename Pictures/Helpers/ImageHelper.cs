@@ -81,7 +81,76 @@ namespace Pictures.Helpers
             }
         }
 
-        // helper for JPEG image sizing
+        // gets a PNG image size quickly, pulled from StackOverflow
+        public static Size GetPngImageSize(string filename)
+        {
+            FileStream stream = null;
+            BinaryReader rdr = null;
+            try
+            {
+                byte[] buffer = new byte[24];
+                stream = File.OpenRead(filename);
+                stream.Read(buffer, 0, 24);
+
+                var width = buffer[16] << 24 | buffer[17] << 16 | buffer[18] << 8 | buffer[19];
+                var height = buffer[20] << 24 | buffer[21] << 16 | buffer[22] << 8 | buffer[23];
+
+                return new Size(width, height);
+            }
+            finally
+            {
+                if (rdr != null) rdr.Close();
+                if (stream != null) stream.Close();
+            }
+        }
+
+        // gets a GIF image size quickly, pulled from StackOverflow
+        public static Size GetGifImageSize(string filename)
+        {
+            FileStream stream = null;
+            BinaryReader rdr = null;
+            try
+            {
+                stream = File.OpenRead(filename);
+                stream.Seek(6, SeekOrigin.Begin);
+                rdr = new BinaryReader(stream);
+
+                var width = rdr.ReadUInt16();
+                var height = rdr.ReadUInt16();
+
+                return new Size(width, height);
+            }
+            finally
+            {
+                if (rdr != null) rdr.Close();
+                if (stream != null) stream.Close();
+            }
+        }
+
+        // gets a BMP image size quickly, pulled from StackOverflow
+        public static Size GetBmpImageSize(string filename)
+        {
+            FileStream stream = null;
+            BinaryReader rdr = null;
+            try
+            {
+                stream = File.OpenRead(filename);
+                stream.Seek(18, SeekOrigin.Begin);
+                rdr = new BinaryReader(stream);
+
+                var width = (int)rdr.ReadUInt32();
+                var height = (int)rdr.ReadUInt32();
+
+                return new Size(width, height);
+            }
+            finally
+            {
+                if (rdr != null) rdr.Close();
+                if (stream != null) stream.Close();
+            }
+        }
+
+        // helper for JPEG short encoding
         private static ushort ReadBEUshort(BinaryReader rdr)
         {
             ushort hi = rdr.ReadByte();

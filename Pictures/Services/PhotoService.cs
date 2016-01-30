@@ -3,6 +3,8 @@ using Pictures.Models;
 using SQLite;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -83,19 +85,34 @@ namespace Pictures.Services
             {
                 var lower = file.ToLower();
 
-                // ensure we only try to work with JPEGs
+                // get the image size based on extension
+                Size size = Size.Empty;
                 if (lower.EndsWith(".jpg") || lower.EndsWith(".jpeg"))
+                    size = ImageHelper.GetJpegImageSize(file);
+                if (lower.EndsWith(".bmp"))
+                    size = ImageHelper.GetBmpImageSize(file);
+                if (lower.EndsWith(".png"))
+                    size = ImageHelper.GetPngImageSize(file);
+                if (lower.EndsWith(".gif"))
+                    size = ImageHelper.GetGifImageSize(file);
+                
+                // ensure we only try to work with JPEGs
+                if (size != Size.Empty)
                 {
                     // check to see if this picture is in the database
-                    var picture = _sqlite.Table<Picture>().Where(p => p.Path.Equals(file)).FirstOrDefault();
+                    Picture picture = null;
+                    lock (_sqlite)
+                    {
+                        picture = _sqlite.Table<Picture>().Where(p => p.Path.Equals(file)).FirstOrDefault();
+                    }
+
                     if (picture == null)
                     {
                         try
                         {
-                            var size = ImageHelper.GetJpegImageSize(file);
                             picture = new Picture() { Path = file, Width = size.Width, Height = size.Height };
 
-                            lock (_lock)
+                            lock (_sqlite)
                             {
                                 var id = _sqlite.Insert(picture);
                             }
@@ -103,12 +120,9 @@ namespace Pictures.Services
                         catch (Exception e)
                         {
                             // TODO: log something
-                            Console.WriteLine("Could not load picture: " + file);
                         }
                     }
                 }
-
-                // TODO: support BMPs and PNGs and such (need quick dimension loader)
             }
 
             // recursively traverse folders
@@ -118,46 +132,58 @@ namespace Pictures.Services
 
         public Picture GetRandomPicture()
         {
-            var random = _random.Next();
-            return GetPicture(p => p.Random > random);
+            return GetPicture(p => p.Random > _random.Next());
         }
 
         public Picture GetRandomWidePicture()
         {
-            var random = _random.Next();
-            return GetPicture(p => p.Random > random && p.Wide == true);
+            return GetPicture(p => p.Random > _random.Next() && p.Wide == true);
         }
 
         private Picture GetPicture(Func<Picture,bool> query)
         {
             Picture picture = null;
 
+            var findsw = Stopwatch.StartNew();
             while (picture == null)
             {
-                // get the first ten pictures with a bigger random field
-                picture = _sqlite.Table<Picture>().Where(query).OrderBy(p => p.Random).FirstOrDefault();
+                var selectsw = Stopwatch.StartNew();
+                // get the first ten pictures with a bigger random file
+                lock (_sqlite)
+                {
+                    picture = _sqlite.Table<Picture>().Where(query).OrderBy(p => p.Random).FirstOrDefault();
+                }
+                selectsw.Stop();
 
                 if (picture != null)
                 {
                     // make sure the picture is in one of our paths
                     if (_paths.Any(p => picture.Path.StartsWith(p)) == false)
                     {
-                        _sqlite.Delete<Picture>(picture.Id);
+                        lock (_sqlite)
+                        {
+                            _sqlite.Delete<Picture>(picture.Id);
+                        }
                     }
 
                     // make sure the picture exists
                     if (File.Exists(picture.Path) == false)
                     {
-                        _sqlite.Delete<Picture>(picture.Id);
+                        lock (_sqlite)
+                        {
+                            _sqlite.Delete<Picture>(picture.Id);
+                        }
                     }
-
-                    Console.WriteLine("Loaded: " + picture.Id + " " + picture.Random);
-                    return picture;
                 }
                 else
                 {
-                    // break if we don't have any pictures
-                    if (_sqlite.Table<Picture>().Count() == 0)
+                    var count = 0;
+                    lock (_sqlite)
+                    {
+                        _sqlite.Table<Picture>().Count();
+                    }
+
+                    if (count == 0)
                     {
                         Refresh();
 
@@ -165,8 +191,9 @@ namespace Pictures.Services
                     }
                 }
             }
+            findsw.Stop();
 
-            return null;
+            return picture;
         }
 
         public void Dispose()
