@@ -27,7 +27,7 @@ Section "Install"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PicturesScreensaver" "DisplayName" "Pictures Screensaver"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PicturesScreensaver" "UninstallString" "$WINDIR\system32\PicturesUninstall.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PicturesScreensaver" "Publisher" "gdroud@gmail.com"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PicturesScreensaver" "DisplayVersion" "1.0.0"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PicturesScreensaver" "DisplayVersion" "2.1.0"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PicturesScreensaver" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PicturesScreensaver" "NoRepair" 1
   WriteUninstaller "PicturesUninstall.exe"
