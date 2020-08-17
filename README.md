@@ -1,11 +1,11 @@
 # A Simple Picture Collage Screensaver
 
-This screensaver displays pictures (JPEG, PNG, BMP, GIF) from a 
-folder on your computer in a pleasing format.  It is basically
-a digital photo frame on steroids.
+This screensaver and wallpaper generator lets you display JPEG
+pictures from a folder on your computer in a pleasing format.
 
 This is an attempt to make  something better than the built-in
-"Photos" screensaver on Windows 7, which is decidedly lacking!
+"Photos" screensaver on Windows 7 and Windows 10, which are
+decidedly lacking!
 
 ## Features
 
@@ -44,6 +44,7 @@ This is an attempt to make  something better than the built-in
 * Animated and 3D transitions
 * Border size choices
 * Unit tests and frameworks
+* EXIF rotation support (done)
 * Additional file format support (done)
 * Image dimension caching (done)
 * Wallpaper generation (done)
