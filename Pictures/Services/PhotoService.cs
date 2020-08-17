@@ -1,4 +1,5 @@
-﻿using Pictures.Helpers;
+﻿using MetadataExtractor;
+using Pictures.Helpers;
 using Pictures.Models;
 using SQLite;
 using System;
@@ -80,24 +81,65 @@ namespace Pictures.Services
 
         private void LoadPath(string path)
         {
-            var files = Directory.GetFiles(path);
+            var files = System.IO.Directory.GetFiles(path);
             foreach (var file in files)
             {
                 var lower = file.ToLower();
 
+                var width = 0;
+                var height = 0;
+                var rotate = 0;
+
+                try
+                {
+                    IEnumerable<MetadataExtractor.Directory> directories = ImageMetadataReader.ReadMetadata(file);
+                    var jpeg = directories.FirstOrDefault(d => d.Name.Equals("JPEG"));
+                    if (jpeg != null)
+                    {
+                        var heightTag = jpeg.Tags.FirstOrDefault(t => t.Type == 1).Description;
+                        heightTag = heightTag.Substring(0, heightTag.IndexOf(' '));
+                        height = int.Parse(heightTag);
+
+                        var widthTag = jpeg.Tags.FirstOrDefault(t => t.Type == 3).Description;
+                        widthTag = widthTag.Substring(0, widthTag.IndexOf(' '));
+                        width = int.Parse(widthTag);
+
+                        var exif = directories.FirstOrDefault(d => d.Name.Equals("Exif IFD0"));
+                        if (exif != null)
+                        {
+                            var orientTag = exif.Tags.FirstOrDefault(t => t.Type == 274);
+                            if (orientTag != null)
+                            {
+                                if (orientTag.Description.Contains("Rotate 90"))
+                                {
+                                    rotate = 90;
+                                }
+                                else if (orientTag.Description.Contains("Rotate 180"))
+                                {
+                                    rotate = 180;
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+
+                }
+
                 // get the image size based on extension
-                Size size = Size.Empty;
-                if (lower.EndsWith(".jpg") || lower.EndsWith(".jpeg"))
-                    size = ImageHelper.GetJpegImageSize(file);
-                if (lower.EndsWith(".bmp"))
-                    size = ImageHelper.GetBmpImageSize(file);
-                if (lower.EndsWith(".png"))
-                    size = ImageHelper.GetPngImageSize(file);
-                if (lower.EndsWith(".gif"))
-                    size = ImageHelper.GetGifImageSize(file);
+                //Size size = Size.Empty;
+                //if (lower.EndsWith(".jpg") || lower.EndsWith(".jpeg"))
+                //    size = ImageHelper.GetJpegImageSize(file);
+                //if (lower.EndsWith(".bmp"))
+                //    size = ImageHelper.GetBmpImageSize(file);
+                //if (lower.EndsWith(".png"))
+                //    size = ImageHelper.GetPngImageSize(file);
+                //if (lower.EndsWith(".gif"))
+                //    size = ImageHelper.GetGifImageSize(file);
                 
                 // ensure we only try to work with JPEGs
-                if (size != Size.Empty)
+                if (height > 0 && width > 0)
                 {
                     // check to see if this picture is in the database
                     Picture picture = null;
@@ -110,7 +152,7 @@ namespace Pictures.Services
                     {
                         try
                         {
-                            picture = new Picture() { Path = file, Width = size.Width, Height = size.Height };
+                            picture = new Picture() { Path = file, Width = width, Height = height, Rotate = rotate };
 
                             lock (_sqlite)
                             {
@@ -126,7 +168,7 @@ namespace Pictures.Services
             }
 
             // recursively traverse folders
-            foreach (var directory in Directory.GetDirectories(path))
+            foreach (var directory in System.IO.Directory.GetDirectories(path))
                 LoadPath(directory);
         }
 

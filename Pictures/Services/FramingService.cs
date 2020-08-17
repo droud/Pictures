@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 
@@ -65,6 +66,8 @@ namespace Pictures.Services
 
         public void DrawToGraphics(Graphics graphics, Action interrupt = null)
         {
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+
             // hold bitmap and brush reference outside of try/catch so we can dispose even if there are errors
             Bitmap bitmap = null;
             Brush brush = new SolidBrush(Color.Black);
@@ -126,6 +129,11 @@ namespace Pictures.Services
                     // calculate size ratios
                     var xratio = (double)segment.Bounds.Width / (double)picture.Width;
                     var yratio = (double)segment.Bounds.Height / (double)picture.Height;
+                    if (picture.Rotate == 90 || picture.Rotate == 270)
+                    {
+                        xratio = (double)segment.Bounds.Height / (double)picture.Width;
+                        yratio = (double)segment.Bounds.Width / (double)picture.Height;
+                    }
 
                     // calculate source sizes bounds
                     var bounds = Rectangle.Empty;
@@ -164,8 +172,58 @@ namespace Pictures.Services
                     segment.Bounds.X = segment.Bounds.X + 10;
                     segment.Bounds.Y = segment.Bounds.Y + 10;
 
-                    // draw image on form
-                    graphics.DrawImage(bitmap, segment.Bounds, bounds, GraphicsUnit.Pixel);
+                    if (picture.Rotate == 0)
+                    {
+                        // calculate destination points
+                        var destinationPoints = new[]
+                        {
+                            new Point(segment.Bounds.X, segment.Bounds.Y),
+                            new Point(segment.Bounds.X + segment.Bounds.Width, segment.Bounds.Y),
+                            new Point(segment.Bounds.X, segment.Bounds.Y + segment.Bounds.Height),
+                        };
+
+                        // draw image on form
+                        graphics.DrawImage(bitmap, destinationPoints, bounds, GraphicsUnit.Pixel);
+                    }
+                    else if (picture.Rotate == 90)
+                    {
+                        // calculate destination points
+                        var destinationPoints = new[]
+                        {
+                            new Point(segment.Bounds.X + segment.Bounds.Width, segment.Bounds.Y),
+                            new Point(segment.Bounds.X + segment.Bounds.Width, segment.Bounds.Y + segment.Bounds.Height),
+                            new Point(segment.Bounds.X, segment.Bounds.Y),
+                        };
+
+                        // draw image on form
+                        graphics.DrawImage(bitmap, destinationPoints, bounds, GraphicsUnit.Pixel);
+                    }
+                    else if (picture.Rotate == 180)
+                    {
+                        // calculate destination points
+                        var destinationPoints = new[]
+                        {
+                            new Point(segment.Bounds.X + segment.Bounds.Width, segment.Bounds.Y + segment.Bounds.Height),
+                            new Point(segment.Bounds.X, segment.Bounds.Y + segment.Bounds.Height),
+                            new Point(segment.Bounds.X + segment.Bounds.Width, segment.Bounds.Y),
+                        };
+
+                        // draw image on form
+                        graphics.DrawImage(bitmap, destinationPoints, bounds, GraphicsUnit.Pixel);
+                    }
+                    else if (picture.Rotate == 270)
+                    {
+                        // calculate destination points
+                        var destinationPoints = new[]
+                        {
+                            new Point(segment.Bounds.X, segment.Bounds.Y + segment.Bounds.Height),
+                            new Point(segment.Bounds.X, segment.Bounds.Y),
+                            new Point(segment.Bounds.X + segment.Bounds.Width, segment.Bounds.Y + segment.Bounds.Height),
+                        };
+
+                        // draw image on form
+                        graphics.DrawImage(bitmap, destinationPoints, bounds, GraphicsUnit.Pixel);
+                    }
 
                     // clean up
                     bitmap.Dispose();

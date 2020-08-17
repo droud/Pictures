@@ -31,11 +31,19 @@ namespace Pictures.Models
         // stores the height of the image
         public int Height { get; set; }
 
+        // stores the orientation of the image
+        public int Rotate { get; set; }
+
         // stores whether the picture is wide
         [Indexed]
         public bool Wide
         {
-            get { return Width > Height; }
+            get {
+                if (Rotate == 90 || Rotate == 270)
+                    return Width > Height;
+                else
+                    return Height > Width;
+            }
             set { }
         }
 

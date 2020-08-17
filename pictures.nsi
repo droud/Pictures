@@ -22,12 +22,14 @@ Section "Install"
   ; Put file there
   File "/oname=Pictures.scr" "Pictures\bin\Release\Pictures.exe"
   File "/oname=sqlite3.dll" "Pictures\bin\Release\sqlite3.dll"
+  File "/oname=MetadataExtractor.dll" "Pictures\bin\Release\MetadataExtractor.dll"
+  File "/oname=XmpCore.dll" "Pictures\bin\Release\XmpCore.dll"
   
   ; Uninstall stuff
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PicturesScreensaver" "DisplayName" "Pictures Screensaver"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PicturesScreensaver" "UninstallString" "$WINDIR\system32\PicturesUninstall.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PicturesScreensaver" "Publisher" "gdroud@gmail.com"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PicturesScreensaver" "DisplayVersion" "2.1.0"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PicturesScreensaver" "DisplayVersion" "3.1.0"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PicturesScreensaver" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PicturesScreensaver" "NoRepair" 1
   WriteUninstaller "PicturesUninstall.exe"
